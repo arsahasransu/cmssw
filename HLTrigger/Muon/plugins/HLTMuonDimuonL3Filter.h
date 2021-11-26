@@ -74,15 +74,16 @@ private:
   const std::vector<double> min_InvMass_;             // minimum invariant mass of pair
   const std::vector<double> max_InvMass_;             // maximum invariant mass of pair
   const std::vector<int> invertDiMuonMassSelection_;  // condition to invert the invariant mass selection
-  double min_DiMuAngle_;                              // minimum angular difference between the muons
-  double min_Acop_;                                   // minimum acoplanarity
-  double max_Acop_;                                   // maximum acoplanarity
-  double min_PtBalance_;                              // minimum Pt difference
-  double max_PtBalance_;                              // maximum Pt difference
-  double nsigma_Pt_;                                  // pt uncertainty margin (in number of sigmas)
-  double max_DCAMuMu_;                                // DCA between the two muons
-  double max_YPair_;                                  // |rapidity| of pair
-  bool cutCowboys_;                                   ///< if true, reject muon-track pairs that bend towards each other
+  const bool applyMinDiMuonDeltaR2Cut_;                     // apply cut on minimum Delta-R^2 distance between the muons
+  const double min_DiMuDeltaR2_;                            // minimum Delta-R^2 distance between the muons
+  const double min_Acop_;                                   // minimum acoplanarity
+  const double max_Acop_;                                   // maximum acoplanarity
+  const double min_PtBalance_;                              // minimum Pt difference
+  const double max_PtBalance_;                              // maximum Pt difference
+  const double nsigma_Pt_;                                  // pt uncertainty margin (in number of sigmas)
+  const double max_DCAMuMu_;                                // DCA between the two muons
+  const double max_YPair_;                                  // |rapidity| of pair
+  const bool cutCowboys_;                                   ///< if true, reject muon-track pairs that bend towards each other
   const edm::InputTag theL3LinksLabel;                //Needed to iterL3
   const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;  //Needed to iterL3
   const double L1MatchingdR_;
