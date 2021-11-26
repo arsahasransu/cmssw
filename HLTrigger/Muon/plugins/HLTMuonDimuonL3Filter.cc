@@ -110,7 +110,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
     throw cms::Exception("Configuration") << "size of \"MinInvMass\" (" << min_InvMass_.size() << ") and \"MaxInvMass\" (" << max_InvMass_.size() << ") differ";
   }
 
-  LogDebug("HLTMuonDimuonL3Filter") << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/"
+  LogDebug("HLTMuonDimuonL3Filter") << " CandTag/FastAccept/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt1/MinPt2/MinInvMass/MaxInvMass/applyMinDiMuonDeltaRCut/MinDiMuonDeltaR"
                                        "MinAcop/MaxAcop/MinPtBalance/MaxPtBalance/NSigmaPt/MaxDzMuMu/MaxRapidityPair : "
                                     << candTag_.encode() << " " << fast_Accept_ << " " << min_N_ << " " << max_Eta_
                                     << " " << min_Nhits_ << " " << max_Dr_ << " " << max_Dz_ << " " << chargeOpt_ << " "
