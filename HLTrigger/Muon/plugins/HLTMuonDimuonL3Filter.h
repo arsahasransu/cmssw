@@ -59,13 +59,13 @@ private:
   const edm::InputTag recoMuTag_;  // input tag identifying reco muons
   const edm::EDGetTokenT<reco::MuonCollection> recoMuToken_;  // token identifying product contains reco muons
   bool previousCandIsL2_;
-  bool fast_Accept_;  // flag to save time: stop processing after identification of the first valid pair
-  int min_N_;         // minimum number of muons to fire the trigger
-  double max_Eta_;    // Eta cut
-  int min_Nhits_;     // threshold on number of hits on muon
-  double max_Dr_;     // impact parameter cut
-  double max_Dz_;     // dz cut
-  int chargeOpt_;     // Charge option (0:nothing; +1:same charge, -1:opposite charge)
+  const bool fast_Accept_;  // flag to save time: stop processing after identification of the first valid pair
+  const int min_N_;         // minimum number of muons to fire the trigger
+  const double max_Eta_;    // Eta cut
+  const int min_Nhits_;     // threshold on number of hits on muon
+  const double max_Dr_;     // impact parameter cut
+  const double max_Dz_;     // dz cut
+  const int chargeOpt_;     // Charge option (0:nothing; +1:same charge, -1:opposite charge)
   const std::vector<double> min_PtPair_;              // minimum Pt for the dimuon system
   const std::vector<double> max_PtPair_;              // miaximum Pt for the dimuon system
   const std::vector<double> min_PtMax_;               // minimum Pt for muon with max Pt in pair
