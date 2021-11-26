@@ -115,7 +115,7 @@ HLTMuonDimuonL3Filter::HLTMuonDimuonL3Filter(const edm::ParameterSet& iConfig)
                                     << candTag_.encode() << " " << fast_Accept_ << " " << min_N_ << " " << max_Eta_
                                     << " " << min_Nhits_ << " " << max_Dr_ << " " << max_Dz_ << " " << chargeOpt_ << " "
                                     << Out(min_PtPair_) << " " << Out(min_PtMax_) << " " << Out(min_PtMin_) << " "
-                                    << Out(min_InvMass_) << " " << Out(max_InvMass_) << " " << min_DiMuAngle_ << " "
+                                    << Out(min_InvMass_) << " " << Out(max_InvMass_) << " " << applyMinDiMuonDeltaR2Cut_ << " " << math::sqrt(min_DiMuonDeltaR2_) << " "
                                     << min_Acop_ << " " << max_Acop_ << " " << min_PtBalance_ << " " << max_PtBalance_
                                     << " " << nsigma_Pt_ << " " << max_DCAMuMu_ << " " << max_YPair_;
 }
