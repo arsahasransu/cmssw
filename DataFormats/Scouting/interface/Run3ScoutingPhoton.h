@@ -2,6 +2,7 @@
 #define DataFormats_Run3ScoutingPhoton_h
 
 #include <vector>
+#include "DataFormats/DetId/interface/DetId.h"
 
 // Class for holding photon information, for use in data scouting
 // IMPORTANT: the content of this class should be changed only in backwards compatible ways!
@@ -22,6 +23,7 @@ public:
                      float sMaj,
                      unsigned int seedId,
                      std::vector<float> energyMatrix,
+		     std::vector<DetId> detIds,
                      std::vector<float> timingMatrix)
       : pt_(pt),
         eta_(eta),
@@ -37,6 +39,7 @@ public:
         sMaj_(sMaj),
         seedId_(seedId),
         energyMatrix_(std::move(energyMatrix)),
+        detIds_(std::move(detIds)),
         timingMatrix_(std::move(timingMatrix)) {}
   //default constructor
   Run3ScoutingPhoton()
@@ -71,6 +74,7 @@ public:
   float sMaj() const { return sMaj_; }
   float seedId() const { return seedId_; }
   std::vector<float> const& energyMatrix() const { return energyMatrix_; }
+  std::vector<DetId> const& detIds() const { return detIds_; }
   std::vector<float> const& timingMatrix() const { return timingMatrix_; }
 
 private:
@@ -88,6 +92,7 @@ private:
   float sMaj_;
   unsigned int seedId_;
   std::vector<float> energyMatrix_;
+  std::vector<DetId> detIds_;
   std::vector<float> timingMatrix_;
 };
 

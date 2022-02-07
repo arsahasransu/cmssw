@@ -254,6 +254,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                sMaj,
                                seedId,
                                mEnergies,
+			       mDetIds,
                                mTimes);  //read for(ieta){for(iphi){}}
     } else {                             // Candidate is a scouting electron
       outElectrons->emplace_back(candidate.pt(),
@@ -277,6 +278,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  sMaj,
                                  seedId,
                                  mEnergies,
+				 mDetIds,
                                  mTimes);  //read for(ieta){for(iphi){}}
     }
   }
