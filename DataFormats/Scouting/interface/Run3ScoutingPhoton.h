@@ -22,6 +22,7 @@ public:
                      float sMaj,
                      unsigned int seedId,
                      std::vector<float> energyMatrix,
+		     std::vector<unsigned int> detIds,
                      std::vector<float> timingMatrix)
       : pt_(pt),
         eta_(eta),
@@ -37,6 +38,7 @@ public:
         sMaj_(sMaj),
         seedId_(seedId),
         energyMatrix_(std::move(energyMatrix)),
+        detIds_(std::move(detIds)),
         timingMatrix_(std::move(timingMatrix)) {}
   //default constructor
   Run3ScoutingPhoton()
@@ -71,6 +73,7 @@ public:
   float sMaj() const { return sMaj_; }
   float seedId() const { return seedId_; }
   std::vector<float> const& energyMatrix() const { return energyMatrix_; }
+  std::vector<unsigned int> const& detIds() const { return detIds_; }
   std::vector<float> const& timingMatrix() const { return timingMatrix_; }
 
 private:
@@ -88,6 +91,7 @@ private:
   float sMaj_;
   unsigned int seedId_;
   std::vector<float> energyMatrix_;
+  std::vector<unsigned int> detIds_;
   std::vector<float> timingMatrix_;
 };
 

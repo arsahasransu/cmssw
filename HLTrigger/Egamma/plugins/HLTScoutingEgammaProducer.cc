@@ -210,10 +210,12 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     std::vector<DetId> mDetIds = EcalClusterTools::matrixDetId((topology), (*SCseed).seed(), rechitMatrixSize);
 
     int detSize = mDetIds.size();
+    std::vector<unsigned int> mDetIdstore(detSize, 0);
     std::vector<float> mEnergies(detSize, 0.);
     std::vector<float> mTimes(detSize, 0.);
 
     for (int i = 0; i < detSize; i++) {
+      mDetIdstore[i] = mDetIds.at(i);
       mEnergies[i] =
           MiniFloatConverter::reduceMantissaToNbitsRounding(recHitE(mDetIds.at(i), *rechits), mantissaPrecision);
       if (saveRecHitTiming)
@@ -254,6 +256,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                sMaj,
                                seedId,
                                mEnergies,
+			       mDetIdstore,
                                mTimes);  //read for(ieta){for(iphi){}}
     } else {                             // Candidate is a scouting electron
       outElectrons->emplace_back(candidate.pt(),
@@ -277,6 +280,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  sMaj,
                                  seedId,
                                  mEnergies,
+				 mDetIdstore,
                                  mTimes);  //read for(ieta){for(iphi){}}
     }
   }
