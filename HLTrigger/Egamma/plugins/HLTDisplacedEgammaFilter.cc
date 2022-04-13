@@ -40,7 +40,9 @@ HLTDisplacedEgammaFilter::HLTDisplacedEgammaFilter(const edm::ParameterSet& iCon
   inputToken_ = consumes<trigger::TriggerFilterObjectWithRefs>(inputTag_);
   rechitsEBToken_ = consumes<EcalRecHitCollection>(rechitsEB);
   rechitsEEToken_ = consumes<EcalRecHitCollection>(rechitsEE);
-  inputTrkToken_ = consumes<reco::TrackCollection>(inputTrk);
+  if(!inputTrk.label().empty()) {
+    inputTrkToken_ = consumes<reco::TrackCollection>(inputTrk);
+  }
 }
 
 HLTDisplacedEgammaFilter::~HLTDisplacedEgammaFilter() = default;
@@ -86,7 +88,9 @@ bool HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent,
 
   // get hold of collection of objects
   edm::Handle<reco::TrackCollection> tracks;
-  iEvent.getByToken(inputTrkToken_, tracks);
+  if(!inputTrk.label().empty()) {
+    iEvent.getByToken(inputTrkToken_, tracks);
+  }
 
   // get the EcalRecHit
   edm::Handle<EcalRecHitCollection> rechitsEB_;
@@ -128,19 +132,21 @@ bool HLTDisplacedEgammaFilter::hltFilter(edm::Event& iEvent,
 
     //Track Veto
 
-    int nTrk = 0;
-    for (auto const& it : *tracks) {
-      if (it.pt() < trkPtCut)
-        continue;
-      LorentzVector trkP4(it.px(), it.py(), it.pz(), it.p());
-      double dR = ROOT::Math::VectorUtil::DeltaR(trkP4, ref->p4());
-      if (dR < trkdRCut)
-        nTrk++;
+    if(!inputTrk.label().empty()) {
+      int nTrk = 0;
+      for (auto const& it : *tracks) {
+	if (it.pt() < trkPtCut)
+	  continue;
+	LorentzVector trkP4(it.px(), it.py(), it.pz(), it.p());
+	double dR = ROOT::Math::VectorUtil::DeltaR(trkP4, ref->p4());
+	if (dR < trkdRCut)
+	  nTrk++;
+	if (nTrk > maxTrkCut)
+	  break;
+      }
       if (nTrk > maxTrkCut)
-        break;
+	continue;
     }
-    if (nTrk > maxTrkCut)
-      continue;
 
     n++;
     // std::cout << "Passed eta: " << ref->eta() << std::endl;
