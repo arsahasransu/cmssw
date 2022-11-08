@@ -77,6 +77,7 @@ private:
   std::unique_ptr<TTree> m_tree, m_lumiTree, m_runTree, m_metaDataTree, m_parameterSetsTree;
 
   static constexpr int m_firstFlush{1000};
+  bool m_isPFScouting;
 
   class CommonEventBranches {
   public:
@@ -159,7 +160,8 @@ NanoAODOutputModule::NanoAODOutputModule(edm::ParameterSet const& pset)
       m_writeProvenance(pset.getUntrackedParameter<bool>("saveProvenance", true)),
       m_fakeName(pset.getUntrackedParameter<bool>("fakeNameForCrab", false)),
       m_autoFlush(pset.getUntrackedParameter<int>("autoFlush", -10000000)),
-      m_processHistoryRegistry() {}
+      m_processHistoryRegistry(),
+      m_isPFScouting(pset.getUntrackedParameter<bool>("isPFScouting", false)) {}
 
 NanoAODOutputModule::~NanoAODOutputModule() {}
 
@@ -322,7 +324,7 @@ void NanoAODOutputModule::openFile(edm::FileBlock const&) {
     if (keep.first->className() == "nanoaod::FlatTable")
       m_tables.emplace_back(keep.first, keep.second);
     else if (keep.first->className() == "edm::TriggerResults") {
-      m_triggers.emplace_back(keep.first, keep.second);
+      m_triggers.emplace_back(keep.first, keep.second, m_isPFScouting);
     } else if (keep.first->className() == "std::basic_string<char,std::char_traits<char> >" &&
                keep.first->productInstanceName() == "genModel") {  // friendlyClassName == "String"
       m_evstrings.emplace_back(keep.first, keep.second, true);     // update only at lumiBlock transitions
@@ -416,6 +418,7 @@ void NanoAODOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descr
           "Change the OutputModule name in the fwk job report to fake PoolOutputModule. This is needed to run on cran "
           "(and publish) till crab is fixed");
   desc.addUntracked<int>("autoFlush", -10000000)->setComment("Autoflush parameter for ROOT file");
+  desc.addUntracked<bool>("isPFScouting", false);
 
   //replace with whatever you want to get from the EDM by default
   const std::vector<std::string> keep = {"drop *",

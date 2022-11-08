@@ -12,8 +12,8 @@
 
 class TriggerOutputBranches {
 public:
-  TriggerOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token)
-      : m_token(token), m_lastRun(-1), m_fills(0), m_processName(desc->processName()) {
+  TriggerOutputBranches(const edm::BranchDescription *desc, const edm::EDGetToken &token, bool isPFScouting)
+      : m_token(token), m_lastRun(-1), m_fills(0), m_processName(desc->processName()), m_isPFScouting(isPFScouting) {
     if (desc->className() != "edm::TriggerResults")
       throw cms::Exception("Configuration",
                            "NanoAODOutputModule/TriggerOutputBranches can only write out edm::TriggerResults objects");
@@ -44,6 +44,7 @@ private:
   unsigned long m_fills;
   std::string m_processName;
   bool verifyBranchUniqueName(TTree &, std::string) const;
+  bool m_isPFScouting;
 
   template <typename T>
   void fillColumn(NamedBranchPtr &nb, const edm::TriggerResults &triggers) {
