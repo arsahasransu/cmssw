@@ -120,6 +120,9 @@ private:
   edm::Handle<edm::ValueMap<float>> trkPt_value_map_;
   edm::Handle<edm::ValueMap<float>> trkEta_value_map_;
   edm::Handle<edm::ValueMap<float>> trkPhi_value_map_;
+
+  //reco::VertexRefProd PVRefProd;
+  //TrackInfoBuilder trackinfo; 
 };
 
 const std::vector<std::string> DeepBoostedJetTagInfoProducer::particle_features_{
@@ -409,10 +412,16 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
 
     // fill values only if above pt threshold and has daughters, otherwise left
     bool fill_vars = true;
-    if (jet.pt() < min_jet_pt_ or std::abs(jet.eta()) > max_jet_eta_)
+    std::cout << "pt: " << jet.pt() << std::endl;
+    std::cout << "eta: " << jet.eta() << std::endl;
+    if (jet.pt() < min_jet_pt_ or std::abs(jet.eta()) > max_jet_eta_) {
+      std::cout << "first" << std::endl;
       fill_vars = false;
-    if (jet.numberOfDaughters() == 0)
+    }
+    if (jet.numberOfDaughters() == 0 and !use_scouting_features_) {
+      std::cout << "second" << std::endl;
       fill_vars = false;
+    }
 
     // fill features
     if (fill_vars) {
@@ -432,6 +441,8 @@ void DeepBoostedJetTagInfoProducer::produce(edm::Event &iEvent, const edm::Event
     }
     // this should always be done even if features are not filled
     output_tag_infos->emplace_back(features, jet_ref);
+    std::cout << "DeepBoosted: " << fill_vars << std::endl;
+    std::cout << "DeepBoosted: " << features.empty() << std::endl;
   }
   // move output collection
   iEvent.put(std::move(output_tag_infos));
@@ -464,10 +475,15 @@ void DeepBoostedJetTagInfoProducer::fillParticleFeatures(DeepBoostedJetFeatures 
   TVector3 jet_direction(jet.momentum().Unit().x(), jet.momentum().Unit().y(), jet.momentum().Unit().z());
   GlobalVector jet_ref_track_dir(jet.px(), jet.py(), jet.pz());
   const float etasign = jet.eta() > 0 ? 1 : -1;
-  // vertexes
-  reco::VertexRefProd PVRefProd(vtxs_);
-  // track builder
-  TrackInfoBuilder trackinfo(track_builder_);
+  //if (!use_scouting_features_) {
+  //   // vertexes
+  //   PVRefProd = new reco::VertexRefProd(vtxs_);
+  //   // track builder
+  //   trackinfo = new TrackInfoBuilder(track_builder_);
+  //}
+  auto trackHandle = edm::ESHandle<TransientTrackBuilder>();
+  auto PVRefProd = use_scouting_features_ ? reco::VertexRefProd() : reco::VertexRefProd(vtxs_);
+  auto trackinfo = use_scouting_features_ ? TrackInfoBuilder(trackHandle) : TrackInfoBuilder(track_builder_);
 
   // make list of pf-candidates to be considered
   std::vector<reco::CandidatePtr> daughters;
