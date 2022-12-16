@@ -254,6 +254,37 @@ def ConvertScoutingToReco(process):
   process.customRun3ScoutingNanoAODTask.add(cms.Task(getattr(process,"pfcands")))
   return process
 
+def AddParticles(process):
+  """
+  Add particles
+  """
+  process.particleTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+    src = cms.InputTag("pfcands"),
+    name = cms.string("ScoutingParticle"),
+    cut = cms.string(""),
+    doc = cms.string("ScoutingParticle"),
+    singleton = cms.bool(False),
+    extension = cms.bool(False), # this is the main table
+    externalVariables = cms.PSet(
+       vertexIndex = ExtVar(cms.InputTag("pfcands", "vertexIndex"), int, doc="vertex index"),
+       trkNormchi2 = ExtVar(cms.InputTag("pfcands", "normchi2"), float, doc="normchi2 of best track", precision=6),
+       trkDz = ExtVar(cms.InputTag("pfcands", "dz"), float, doc="dz of best track", precision=6),
+       trkDxy = ExtVar(cms.InputTag("pfcands", "dxy"), float, doc="dxy of best track", precision=6),
+       trkDzsig = ExtVar(cms.InputTag("pfcands", "dzsig"), float, doc="dzsig of best track", precision=6),
+       trkDxysig = ExtVar(cms.InputTag("pfcands", "dxysig"), float, doc="dxysig of best track", precision=6),
+       trkLostInnerHits = ExtVar(cms.InputTag("pfcands", "lostInnerHits"), int, doc="lostInnerHits of best track"),
+       trkQuality = ExtVar(cms.InputTag("pfcands", "quality"), int, doc="quality of best track"),
+       trkPt = ExtVar(cms.InputTag("pfcands", "trkPt"), float, doc="pt of best track", precision=6),
+       trkEta = ExtVar(cms.InputTag("pfcands", "trkEta"), float, doc="eta of best track", precision=6),
+       trkPhi = ExtVar(cms.InputTag("pfcands", "trkPhi"), float, doc="phi of best track", precision=6),
+    ),
+    variables = cms.PSet(
+       CandVars,
+    ),
+  )
+  process.customRun3ScoutingNanoAODTask.add(cms.Task(getattr(process,"particleTable")))
+  return process
+
 def AddAK4PFJets(process):
   """
   Add AK4 PF jets
@@ -483,8 +514,40 @@ def AddAK8PFJets(process):
     )
   )
   process.customRun3ScoutingNanoAODTask.add(getattr(process,ak8PFJetTaskName))
+
   return process
 
+def AddAK4MatchToGen(process):
+  process.ak4MatchGen = cms.EDProducer("RecoJetToGenJetDeltaRValueMapProducer",
+      src = cms.InputTag("ak4Jets"),
+      matched = cms.InputTag("slimmedGenJets"),
+      distMax = cms.double(0.4),
+      value = cms.string("index"),
+  )
+  ak4MatchGenTaskName = "ak4MatchGenTask"
+  setattr(process, ak4MatchGenTaskName, cms.Task(process.ak4MatchGen))
+  externalVariables = getattr(process.ak4JetTable, 'externalVariables', cms.PSet())
+  externalVariables.genJetIdx = ExtVar(cms.InputTag("ak4MatchGen"), int, doc="gen jet idx")
+  process.ak4JetTable.externalVariables = externalVariables
+  process.customRun3ScoutingNanoAODTask.add(getattr(process,ak4MatchGenTaskName))
+  
+  return process
+
+def AddAK8MatchToGen(process):
+  process.ak8MatchGen = cms.EDProducer("RecoJetToGenJetDeltaRValueMapProducer",
+      src = cms.InputTag("ak8Jets"),
+      matched = cms.InputTag("slimmedGenJetsAK8"),
+      distMax = cms.double(0.8),
+      value = cms.string("index"),
+  )
+  ak8MatchGenTaskName = "ak8MatchGenTask"
+  setattr(process, ak8MatchGenTaskName, cms.Task(process.ak8MatchGen))
+  externalVariables = getattr(process.ak8JetTable, 'externalVariables', cms.PSet())
+  externalVariables.genJetAK8Idx = ExtVar(cms.InputTag("ak8MatchGen"), int, doc="gen jet idx")
+  process.ak8JetTable.externalVariables = externalVariables
+  process.customRun3ScoutingNanoAODTask.add(getattr(process,ak8MatchGenTaskName))
+  
+  return process
 
 #===========================================================================
 #
@@ -492,13 +555,17 @@ def AddAK8PFJets(process):
 #
 #===========================================================================
 def PrepRun3ScoutingCustomNanoAOD(process,runOnMC):
-
   process.customRun3ScoutingNanoAODTask = cms.Task()
-
   process = ConvertScoutingToReco(process)
-  process = AddRun3Scouting(process)
-  process = AddAK4PFJets(process)
-  process = AddAK8PFJets(process)
+  #process = AddRun3Scouting(process)
+  #process = AddParticles(process)
+  #process = AddAK4PFJets(process)
+  #process = AddAK8PFJets(process)
+
+  if (runOnMC):
+    process = AddAK4MatchToGen(process)
+    process = AddAK8MatchToGen(process)
+
   process.schedule.associate(process.customRun3ScoutingNanoAODTask)
 
   return process
@@ -510,4 +577,5 @@ def PrepRun3ScoutingCustomNanoAOD_MC(process):
 
 def PrepRun3ScoutingCustomNanoAOD_Data(process):
   process = PrepRun3ScoutingCustomNanoAOD(process,runOnMC=False)
+
   return process
