@@ -20,11 +20,6 @@ class FileData:
         self.LuminosityBlocks = self.trees["LuminosityBlocks"]
         self.nluminosityblocks = self.LuminosityBlocks["entries"]
 
-        print(self.trees.keys())
-
-        self.ParameterSets = self.trees["ParameterSets"]
-        self.MetaData = self.trees["MetaData"]
-
 class Branch:
     def __init__(self, tree, branch):
         self.tree = tree
@@ -96,7 +91,7 @@ def inspectRootFile(infile):
     filesize = os.path.getsize(infile)/1024.0
     tfile = ROOT.TFile.Open(infile)
     trees = {}
-    for treeName in "Events", "Runs", "LuminosityBlocks", "ParameterSets", "MetaData":
+    for treeName in "Events", "Runs", "LuminosityBlocks":
         toplevelDoc={}
         tree = tfile.Get(treeName)
         entries = tree.GetEntries()
@@ -456,14 +451,10 @@ if __name__ == '__main__':
 
     treedata = {}  # trees for (HTML or markdown) doc report
     if len(filedata.Runs["branches"]) > 1:  # default: run number
-      treedata["Runs"] = filedata.Runs
+        treedata["Runs"] = filedata.Runs
     if len(filedata.LuminosityBlocks["branches"]) > 2:  # default: run number, lumiblock
-      treedata["LuminosityBlocks"] = filedata.LuminosityBlocks
-    #treedata["ParameterSets"] = filedata.ParameterSets
-    #treedata["MetaData"] = filedata.MetaData
+        treedata["LuminosityBlocks"] = filedata.LuminosityBlocks
     treedata["Events"] = filedata.Events
-
-    print(treedata.keys())
 
     if options.doc:
         writeDocReport(filedata.filename, treedata, _maybeOpen(options.doc))

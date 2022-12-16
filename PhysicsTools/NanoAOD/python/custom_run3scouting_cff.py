@@ -227,7 +227,19 @@ def AddRun3Scouting(process):
       )
   )
 
-  process.run3ScoutingTask.add(cms.Task(getattr(process,"photonScoutingTable"),getattr(process,"electronScoutingTable"),getattr(process,"muonScoutingTable"),getattr(process,"trackScoutingTable"),getattr(process,"primaryvertexScoutingTable"),getattr(process,"displacedvertexScoutingTable"),getattr(process,"rhoScoutingTable"),getattr(process,"metScoutingTable")))
+  run3ScoutingTaskName = "run3ScoutingTask"
+  setattr(process, run3ScoutingTaskName, cms.Task(
+      getattr(process,"photonScoutingTable"),
+      getattr(process,"muonScoutingTable"),
+      getattr(process,"electronScoutingTable"),
+      getattr(process,"trackScoutingTable"),
+      getattr(process,"primaryvertexScoutingTable"),
+      getattr(process,"displacedvertexScoutingTable"),
+      getattr(process,"rhoScoutingTable"),
+      getattr(process,"metScoutingTable"),
+    )
+  )
+  process.customRun3ScoutingNanoAODTask.add(getattr(process,run3ScoutingTaskName))
   return process
 
 def ConvertScoutingToReco(process):
@@ -235,11 +247,11 @@ def ConvertScoutingToReco(process):
   Convert Run 3 scouting particles to recoPFCandidates
   """
   process.pfcands = cms.EDProducer(
-     "Run3ScoutingToPFCandidateProducer2",
+     "Run3ScoutingParticleToRecoPFCandidateProducer",
      scoutingparticle=cms.InputTag("hltScoutingPFPacker"),
    )
 
-  process.run3ScoutingTask.add(cms.Task(getattr(process,"pfcands")))
+  process.customRun3ScoutingNanoAODTask.add(cms.Task(getattr(process,"pfcands")))
   return process
 
 def AddAK4PFJets(process):
@@ -284,8 +296,8 @@ def AddAK4PFJets(process):
   process.ak4ParticleNetJetTags = cms.EDProducer("BoostedJetONNXValueMapProducer",
       jets = cms.InputTag("ak4Jets"),
       src = cms.InputTag("ak4ParticleNetJetTagInfos"),
-      preprocess_json = cms.string("Run3ScoutingAnalysisTools/Models/preprocess_flavourtag.json"),
-      model_path = cms.FileInPath("Run3ScoutingAnalysisTools/Models/flavourtag.onnx"),
+      preprocess_json = cms.string("Models/preprocess_flavourtag.json"),
+      model_path = cms.FileInPath("Models/flavourtag.onnx"),
       flav_names = cms.vstring(["probb", "probbb","probc", "probcc", "probuds", "probg", "probundef"]),
       debugMode = cms.untracked.bool(False),
   )
@@ -331,8 +343,148 @@ def AddAK4PFJets(process):
       getattr(process,"ak4JetTable"),
     )
   )
-  process.run3ScoutingTask.add(getattr(process,ak4PFJetTaskName))
+  process.customRun3ScoutingNanoAODTask.add(getattr(process,ak4PFJetTaskName))
   return process
+
+def AddAK8PFJets(process):
+  """
+  Add AK8 PF jets
+  """
+  from RecoJets.JetProducers.ak4PFJets_cfi import ak4PFJets
+  process.ak8Jets = ak4PFJets.clone(
+     src = ("pfcands"),
+     rParam   = 0.8,
+     jetPtMin = 50.0,
+  )
+
+  process.ak8JetsSoftDrop = ak4PFJets.clone(
+     src = ("pfcands"),
+     rParam   = 0.8,
+     jetPtMin = 50.0,
+     useSoftDrop = cms.bool(True),
+     zcut = cms.double(0.1),
+     beta = cms.double(0.0),
+     R0   = cms.double(0.8),
+     useExplicitGhosts = cms.bool(True),
+     writeCompound = cms.bool(True),
+     jetCollInstanceName=cms.string("SubJets"),
+  )
+
+  process.ak8JetsSoftDropMass = cms.EDProducer("RecoJetDeltaRValueMapProducer",
+     src = cms.InputTag("ak8Jets"),
+     matched = cms.InputTag("ak8JetsSoftDrop"),                                         
+     distMax = cms.double(0.8),
+     value = cms.string('mass')  
+  )
+
+  from RecoJets.JetProducers.ECF_cff import ecfNbeta1
+  process.ecfNbeta1 = ecfNbeta1.clone(src = cms.InputTag("ak8Jets"), srcWeights="")
+
+  from RecoJets.JetProducers.nJettinessAdder_cfi import Njettiness
+  process.Njettiness = Njettiness.clone(src = cms.InputTag("ak8Jets"), srcWeights="")
+
+  process.ak8ParticleNetJetTagInfos = cms.EDProducer("DeepBoostedJetTagInfoProducer",
+      jet_radius = cms.double( 0.8 ),
+      min_jet_pt = cms.double( 5.0 ),
+      max_jet_eta = cms.double( 2.5 ),
+      min_pt_for_track_properties = cms.double( 0.95 ),
+      min_pt_for_pfcandidates = cms.double( 0.1 ),
+      use_puppiP4 = cms.bool( False ),
+      include_neutrals = cms.bool( True ),
+      sort_by_sip2dsig = cms.bool( False ),
+      min_puppi_wgt = cms.double( -1.0 ),
+      flip_ip_sign = cms.bool( False ),
+      sip3dSigMax = cms.double( -1.0 ),
+      use_hlt_features = cms.bool( False ),
+      pf_candidates = cms.InputTag( "pfcands" ),
+      jets = cms.InputTag( "ak8Jets" ),
+      puppi_value_map = cms.InputTag( "" ),
+      use_scouting_features = cms.bool( True ),
+      normchi2_value_map = cms.InputTag("pfcands", "normchi2"),
+      dz_value_map = cms.InputTag("pfcands", "dz"),
+      dxy_value_map = cms.InputTag("pfcands", "dxy"),
+      dzsig_value_map = cms.InputTag("pfcands", "dzsig"),
+      dxysig_value_map = cms.InputTag("pfcands", "dxysig"),
+      lostInnerHits_value_map = cms.InputTag("pfcands", "lostInnerHits"),
+      quality_value_map = cms.InputTag("pfcands", "quality"),
+      trkPt_value_map = cms.InputTag("pfcands", "trkPt"),
+      trkEta_value_map = cms.InputTag("pfcands", "trkEta"),
+      trkPhi_value_map = cms.InputTag("pfcands", "trkPhi"),
+  )
+
+  from RecoBTag.ONNXRuntime.boostedJetONNXJetTagsProducer_cfi import boostedJetONNXJetTagsProducer
+  process.ak8ParticleNetJetTags = cms.EDProducer("BoostedJetONNXValueMapProducer",
+      jets = cms.InputTag("ak8Jets"),
+      src = cms.InputTag("ak8ParticleNetJetTagInfos"),
+      preprocess_json = cms.string("Models/preprocess_doublebtag.json"),
+      model_path = cms.FileInPath("Models/doublebtag.onnx"),
+      flav_names = cms.vstring(["probHbb", "probHcc","probHqq", "probQCDall"]),
+      debugMode = cms.untracked.bool(False),
+  )
+
+  process.ak8ParticleNetMassRegressionJetTags = cms.EDProducer("BoostedJetONNXValueMapProducer",
+      jets = cms.InputTag("ak8Jets"), 
+      src = cms.InputTag("ak8ParticleNetJetTagInfos"),
+      preprocess_json = cms.string("Models/preprocess_massreg.json"),
+      model_path = cms.FileInPath("Models/massreg.onnx"),
+      flav_names = cms.vstring(["mass"]),
+      debugMode = cms.untracked.bool(False),
+  )
+
+  process.ak8JetTable = cms.EDProducer("SimpleCandidateFlatTableProducer",
+      src = cms.InputTag("ak8Jets"),
+      name = cms.string("ScoutingFatJet"),
+      cut = cms.string(""),
+      doc = cms.string("ScoutingFatJet"),
+      singleton = cms.bool(False),
+      extension = cms.bool(False), # this is the main table
+      externalVariables = cms.PSet(
+         msoftdrop = ExtVar(cms.InputTag('ak8JetsSoftDropMass'), float, doc="Softdrop mass", precision=10),
+         n2b1 = ExtVar(cms.InputTag('ecfNbeta1:ecfN2'), float, doc="N2 with beta=1", precision=10),
+         n3b1 = ExtVar(cms.InputTag('ecfNbeta1:ecfN3'), float, doc="N3 with beta=1", precision=10),
+         tau1 = ExtVar(cms.InputTag('Njettiness:tau1'), float, doc="Nsubjettiness (1 axis)", precision=10),
+         tau2 = ExtVar(cms.InputTag('Njettiness:tau2'), float, doc="Nsubjettiness (2 axis)", precision=10),
+         tau3 = ExtVar(cms.InputTag('Njettiness:tau3'), float, doc="Nsubjettiness (3 axis)", precision=10),
+         tau4 = ExtVar(cms.InputTag('Njettiness:tau4'), float, doc="Nsubjettiness (4 axis)", precision=10),
+         particleNet_mass = ExtVar(cms.InputTag('ak8ParticleNetMassRegressionJetTags:mass'), float, doc="ParticleNet regress mass", precision=10),
+         particleNet_prob_Hbb = ExtVar(cms.InputTag('ak8ParticleNetJetTags:probHbb'), float, doc="ParticleNet prob Hbb", precision=10),
+         particleNet_prob_Hcc = ExtVar(cms.InputTag('ak8ParticleNetJetTags:probHcc'), float, doc="ParticleNet prob Hcc", precision=10),
+         particleNet_prob_Hqq = ExtVar(cms.InputTag('ak8ParticleNetJetTags:probHqq'), float, doc="ParticleNet prob Hqq", precision=10),
+         particleNet_prob_QCD = ExtVar(cms.InputTag('ak8ParticleNetJetTags:probQCDall'), float, doc="ParticleNet probbQCD", precision=10),
+      ),
+      variables = cms.PSet(
+         P4Vars,
+         area = Var("jetArea()", float, doc="jet catchment area, for JECs",precision=10),
+         chHEF = Var("chargedHadronEnergy()/(chargedHadronEnergy()+neutralHadronEnergy()+photonEnergy()+electronEnergy()+muonEnergy())", float, doc="charged Hadron Energy Fraction", precision= 6),
+         neHEF = Var("neutralHadronEnergy()/(chargedHadronEnergy()+neutralHadronEnergy()+photonEnergy()+electronEnergy()+muonEnergy())", float, doc="neutral Hadron Energy Fraction", precision= 6),
+         chEmEF = Var("(electronEnergy()+muonEnergy())/(chargedHadronEnergy()+neutralHadronEnergy()+photonEnergy()+electronEnergy()+muonEnergy())", float, doc="charged Electromagnetic Energy Fraction", precision= 6),
+         neEmEF = Var("(photonEnergy())/(chargedHadronEnergy()+neutralHadronEnergy()+photonEnergy()+electronEnergy()+muonEnergy())", float, doc="neutral Electromagnetic Energy Fraction", precision= 6),
+         muEmEF = Var("(muonEnergy())/(chargedHadronEnergy()+neutralHadronEnergy()+photonEnergy()+electronEnergy()+muonEnergy())", float, doc="muon Energy Fraction", precision= 6),
+         nCh = Var("chargedHadronMultiplicity()", int, doc="number of charged hadrons in the jet"),
+         nNh = Var("neutralHadronMultiplicity()", int, doc="number of neutral hadrons in the jet"),
+         nMuons = Var("muonMultiplicity()", int, doc="number of muons in the jet"),
+         nElectrons = Var("electronMultiplicity()", int, doc="number of electrons in the jet"),
+         nPhotons = Var("photonMultiplicity()", int, doc="number of photons in the jet"),
+         nConstituents = Var("numberOfDaughters()", "uint8", doc="Number of particles in the jet")
+      ),
+  )
+
+  ak8PFJetTaskName = "ak8PFJetTask"
+  setattr(process, ak8PFJetTaskName, cms.Task(
+      getattr(process,"ak8Jets"),
+      getattr(process,"ak8JetsSoftDrop"),
+      getattr(process,"ak8JetsSoftDropMass"),
+      getattr(process,"ecfNbeta1"),
+      getattr(process,"Njettiness"),
+      getattr(process,"ak8ParticleNetJetTagInfos"),
+      getattr(process,"ak8ParticleNetJetTags"),
+      getattr(process,"ak8ParticleNetMassRegressionJetTags"),
+      getattr(process,"ak8JetTable"),
+    )
+  )
+  process.customRun3ScoutingNanoAODTask.add(getattr(process,ak8PFJetTaskName))
+  return process
+
 
 #===========================================================================
 #
@@ -341,12 +493,13 @@ def AddAK4PFJets(process):
 #===========================================================================
 def PrepRun3ScoutingCustomNanoAOD(process,runOnMC):
 
-  process.run3ScoutingTask = cms.Task()
+  process.customRun3ScoutingNanoAODTask = cms.Task()
 
   process = ConvertScoutingToReco(process)
   process = AddRun3Scouting(process)
   process = AddAK4PFJets(process)
-  process.schedule.associate(process.run3ScoutingTask)
+  process = AddAK8PFJets(process)
+  process.schedule.associate(process.customRun3ScoutingNanoAODTask)
 
   return process
 
