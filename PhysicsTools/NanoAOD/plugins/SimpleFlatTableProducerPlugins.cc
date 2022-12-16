@@ -24,6 +24,21 @@ typedef EventSingletonSimpleFlatTableProducer<math::XYZPointF> SimpleXYZPointFla
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 typedef EventSingletonSimpleFlatTableProducer<reco::BeamSpot> SimpleBeamspotFlatTableProducer;
 
+#include "DataFormats/Scouting/interface/Run3ScoutingVertex.h"
+typedef SimpleFlatTableProducer<Run3ScoutingVertex> SimpleRun3ScoutingVertexFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingPhoton.h"
+typedef SimpleFlatTableProducer<Run3ScoutingPhoton> SimpleRun3ScoutingPhotonFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingMuon.h"
+typedef SimpleFlatTableProducer<Run3ScoutingMuon> SimpleRun3ScoutingMuonFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingElectron.h"
+typedef SimpleFlatTableProducer<Run3ScoutingElectron> SimpleRun3ScoutingElectronFlatTableProducer;
+
+#include "DataFormats/Scouting/interface/Run3ScoutingTrack.h"
+typedef SimpleFlatTableProducer<Run3ScoutingTrack> SimpleRun3ScoutingTrackFlatTableProducer;
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(SimpleCandidateFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleGenEventFlatTableProducer);
@@ -33,3 +48,9 @@ DEFINE_FWK_MODULE(SimpleProtonTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleLocalTrackFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleXYZPointFlatTableProducer);
 DEFINE_FWK_MODULE(SimpleBeamspotFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingVertexFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingPhotonFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingMuonFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingElectronFlatTableProducer);
+DEFINE_FWK_MODULE(SimpleRun3ScoutingTrackFlatTableProducer);
+
