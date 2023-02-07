@@ -275,6 +275,9 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
 
     float d0 = 0.0;
     float dz = 0.0;
+    float trackpt = -9999.0;
+    float tracketa = -9999.0;
+    float trackphi = -9999.0;
     int charge = -999;
     for (auto& track : *EgammaGsfTrackCollection) {
       RefToBase<TrajectorySeed> seed = track.extra()->seedRef();
@@ -284,6 +287,9 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
       if (scRefFromTrk == scRef) {
         d0 = track.d0();
         dz = track.dz();
+	trackpt = track.pt();
+	tracketa = track.eta();
+	trackphi = track.phi();
         charge = track.charge();
       }
     }
@@ -312,6 +318,9 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  candidate.mass(),
                                  d0,
                                  dz,
+				 trackpt,
+				 tracketa,
+				 trackphi,
                                  (*DetaMap)[candidateRef],
                                  (*DphiMap)[candidateRef],
                                  (*SigmaIEtaIEtaMap)[candidateRef],
