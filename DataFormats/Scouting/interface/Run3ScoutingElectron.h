@@ -15,6 +15,9 @@ public:
                        float m,
                        float d0,
                        float dz,
+                       float trkpt,
+                       float trketa,
+                       float trkphi,
                        float dEtaIn,
                        float dPhiIn,
                        float sigmaIetaIeta,
@@ -39,6 +42,9 @@ public:
         m_(m),
         d0_(d0),
         dz_(dz),
+        trkpt_(trkpt),
+        trketa_(trketa),
+        trkphi_(trkphi),
         dEtaIn_(dEtaIn),
         dPhiIn_(dPhiIn),
         sigmaIetaIeta_(sigmaIetaIeta),
@@ -65,6 +71,9 @@ public:
         m_(0),
         d0_(0),
         dz_(0),
+        trkpt_(0),
+        trketa_(0),
+        trkphi_(0),
         dEtaIn_(0),
         dPhiIn_(0),
         sigmaIetaIeta_(0),
@@ -88,6 +97,9 @@ public:
   float m() const { return m_; }
   float d0() const { return d0_; }
   float dz() const { return dz_; }
+  float trkpt() const { return trkpt_; }
+  float trketa() const { return trketa_; }
+  float trkphi() const { return trkphi_; }
   float dEtaIn() const { return dEtaIn_; }
   float dPhiIn() const { return dPhiIn_; }
   float sigmaIetaIeta() const { return sigmaIetaIeta_; }
@@ -114,6 +126,9 @@ private:
   float m_;
   float d0_;
   float dz_;
+  float trkpt_;
+  float trketa_;
+  float trkphi_;
   float dEtaIn_;
   float dPhiIn_;
   float sigmaIetaIeta_;
