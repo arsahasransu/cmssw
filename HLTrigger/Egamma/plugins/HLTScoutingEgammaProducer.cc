@@ -273,21 +273,41 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
         continue;
     }
 
-    float d0 = 0.0;
-    float dz = 0.0;
-    int charge = -999;
+    bool tracknotfound = true;
+    unsigned int tracksize = 10;
+    std::vector<float> d0;
+    std::vector<float> dz;
+    std::vector<float> trackpt;
+    std::vector<float> tracketa;
+    std::vector<float> trackphi;
+    std::vector<float> trackchi2overndf;
+    std::vector<int> charge;
+    d0.reserve(tracksize);
+    dz.reserve(tracksize);
+    trackpt.reserve(tracksize);
+    tracketa.reserve(tracksize);
+    trackphi.reserve(tracksize);
+    trackchi2overndf.reserve(tracksize);
+    charge.reserve(tracksize);
+
     for (auto& track : *EgammaGsfTrackCollection) {
       RefToBase<TrajectorySeed> seed = track.extra()->seedRef();
       reco::ElectronSeedRef elseed = seed.castTo<reco::ElectronSeedRef>();
       RefToBase<reco::CaloCluster> caloCluster = elseed->caloCluster();
       reco::SuperClusterRef scRefFromTrk = caloCluster.castTo<reco::SuperClusterRef>();
       if (scRefFromTrk == scRef) {
-        d0 = track.d0();
-        dz = track.dz();
-        charge = track.charge();
+        d0.push_back(track.d0());
+        dz.push_back(track.dz());
+        trackpt.push_back(track.pt());
+        tracketa.push_back(track.eta());
+        trackphi.push_back(track.phi());
+	auto const trackndof = track.ndof();
+        trackchi2overndf.push_back(((trackndof==0)?-1:(track.chi2()/trackndof)));
+        charge.push_back(track.charge());
+	tracknotfound = false;
       }
     }
-    if (charge == -999) {  // No associated track. Candidate is a scouting photon
+    if (tracknotfound) {  // No associated track. Candidate is a scouting photon
       outPhotons->emplace_back(candidate.pt(),
                                candidate.eta(),
                                candidate.phi(),
@@ -312,6 +332,10 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  candidate.mass(),
                                  d0,
                                  dz,
+				 trackpt,
+				 tracketa,
+				 trackphi,
+				 trackchi2overndf,
                                  (*DetaMap)[candidateRef],
                                  (*DphiMap)[candidateRef],
                                  (*SigmaIEtaIEtaMap)[candidateRef],
@@ -331,6 +355,17 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  mTimes,
                                  rechitZeroSuppression);  //read for(ieta){for(iphi){}}
     }
+
+    mDetIdIds.clear();
+    mEnergies.clear();
+    mTimes.clear();    
+    d0.clear();
+    dz.clear();
+    trackpt.clear();
+    tracketa.clear();
+    trackphi.clear();
+    trackchi2overndf.clear();
+    charge.clear();
   }
 
   // Put output
