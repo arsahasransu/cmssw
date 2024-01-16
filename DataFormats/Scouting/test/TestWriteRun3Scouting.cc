@@ -233,7 +233,7 @@ namespace edmtest {
       double offset = static_cast<double>(iEvent.id().event() + i);
       int iOffset = static_cast<int>(iEvent.id().event() + i);
 
-      // Note the first seven of these vectors use an out of sequence index
+      // Note the first eleven of these vectors use an out of sequence index
       // (starting at 19 or 5) because they are data members added in a format
       // change. In the CMSSW_12_4_0 version, they didn't exist.
       // Also the index values 4 and 5 in electronsFloatingPointValues_
@@ -244,6 +244,10 @@ namespace edmtest {
       std::vector<float> trkpt;
       std::vector<float> trketa;
       std::vector<float> trkphi;
+      std::vector<float> trkpMode;
+      std::vector<float> trketaMode;
+      std::vector<float> trkphiMode;
+      std::vector<float> trkqoverpModeError;
       std::vector<float> trkchi2overndf;
       std::vector<int> trkcharge;
       std::vector<float> energyMatrix;
@@ -254,6 +258,10 @@ namespace edmtest {
       trkpt.reserve(vectorSize);
       trketa.reserve(vectorSize);
       trkphi.reserve(vectorSize);
+      trkpMode.reserve(vectorSize);
+      trketaMode.reserve(vectorSize);
+      trkphiMode.reserve(vectorSize);
+      trkqoverpModeError.reserve(vectorSize);
       trkchi2overndf.reserve(vectorSize);
       trkcharge.reserve(vectorSize);
       energyMatrix.reserve(vectorSize);
@@ -265,6 +273,10 @@ namespace edmtest {
         trkpt.push_back(static_cast<float>(electronsFloatingPointValues_[21] + offset + j * 10));
         trketa.push_back(static_cast<float>(electronsFloatingPointValues_[22] + offset + j * 10));
         trkphi.push_back(static_cast<float>(electronsFloatingPointValues_[23] + offset + j * 10));
+        trkpMode.push_back(static_cast<float>(electronsFloatingPointValues_[30] + offset + j * 10));
+        trketaMode.push_back(static_cast<float>(electronsFloatingPointValues_[31] + offset + j * 10));
+        trkphiMode.push_back(static_cast<float>(electronsFloatingPointValues_[32] + offset + j * 10));
+        trkqoverpModeError.push_back(static_cast<float>(electronsFloatingPointValues_[33] + offset + j * 10));
         trkchi2overndf.push_back(static_cast<float>(electronsFloatingPointValues_[24] + offset + j * 10));
         trkcharge.push_back(static_cast<int>(electronsIntegralValues_[5] + offset + j * 10));
         energyMatrix.push_back(static_cast<float>(electronsFloatingPointValues_[17] + offset + j * 10));
@@ -275,11 +287,20 @@ namespace edmtest {
                                           static_cast<float>(electronsFloatingPointValues_[1] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[2] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[3] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[25] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[26] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[27] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[28] + offset),
+                                          static_cast<float>(electronsFloatingPointValues_[29] + offset),
                                           std::move(trkd0),
                                           std::move(trkdz),
                                           std::move(trkpt),
                                           std::move(trketa),
                                           std::move(trkphi),
+                                          std::move(trkpMode),
+                                          std::move(trketaMode),
+                                          std::move(trkphiMode),
+                                          std::move(trkqoverpModeError),
                                           std::move(trkchi2overndf),
                                           static_cast<float>(electronsFloatingPointValues_[6] + offset),
                                           static_cast<float>(electronsFloatingPointValues_[7] + offset),
