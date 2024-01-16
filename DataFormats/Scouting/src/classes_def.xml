@@ -2,11 +2,12 @@
   <class name="Run3ScoutingCaloJet" ClassVersion="3">
       <version ClassVersion="3" checksum="1173827345"/>
   </class>
-  <class name="Run3ScoutingElectron" ClassVersion="6">
+  <class name="Run3ScoutingElectron" ClassVersion="7">
       <version ClassVersion="3" checksum="1086011373"/>
       <version ClassVersion="4" checksum="1250202632"/>
       <version ClassVersion="5" checksum="2230390721"/>
       <version ClassVersion="6" checksum="2815634332"/>
+      <version ClassVersion="7" checksum="3565984644"/>
   </class>
 
   <!-- Adding ioread rules for backwards compatibility -->
