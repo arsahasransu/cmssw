@@ -60,8 +60,11 @@ private:
 
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dEtaMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dEtaSeedMapPutToken_;
+  const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dEtaSeedSignedMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dPhiMapPutToken_;
+  const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dPhiSignedMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> oneOverESuperMinusOneOverPMapPutToken_;
+  const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> oneOverESuperMinusOneOverPSignedMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> oneOverESeedMinusOneOverPMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> missingHitsMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> validHitsMapPutToken_;
@@ -117,8 +120,11 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   reco::RecoEcalCandidateIsolationMap dEtaMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap dEtaSeedMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap dEtaSeedSignedMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap dPhiMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap dPhiSignedMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap oneOverESuperMinusOneOverPMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap oneOverESuperMinusOneOverPSignedMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap oneOverESeedMinusOneOverPMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap missingHitsMap(recoEcalCandHandle);
   reco::RecoEcalCandidateIsolationMap validHitsMap(recoEcalCandHandle);
@@ -153,8 +159,11 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
     float missingHitsValue = 9999999;
     float dEtaInValue = 999999;
     float dEtaSeedInValue = 999999;
+    float dEtaSeedInSignedValue = 999999;
     float dPhiInValue = 999999;
+    float dPhiInSignedValue = 999999;
     float oneOverESuperMinusOneOverPValue = 999999;
+    float oneOverESuperMinusOneOverPSignedValue = 999999;
     float oneOverESeedMinusOneOverPValue = 999999;
 
     const int nrTracks = gsfTracks.size();
@@ -168,11 +177,14 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
       nLayerITValue = 100;
       dEtaInValue = 0;
       dEtaSeedInValue = 0;
+      dEtaSeedInSignedValue = 0;
       dPhiInValue = 0;
+      dPhiInSignedValue = 0;
       missingHitsValue = 0;
       validHitsValue = 100;
       chi2Value = 0;
       oneOverESuperMinusOneOverPValue = 0;
+      oneOverESuperMinusOneOverPSignedValue = 0;
       oneOverESeedMinusOneOverPValue = 0;
     } else {
       for (size_t trkNr = 0; trkNr < gsfTracks.size(); trkNr++) {
@@ -192,6 +204,7 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
         if (scRef->energy() != 0 && trkP != 0) {
           if (std::abs(1 / scRef->energy() - 1 / trkP) < oneOverESuperMinusOneOverPValue) {
             oneOverESuperMinusOneOverPValue = std::abs(1 / scRef->energy() - 1 / trkP);
+            oneOverESuperMinusOneOverPSignedValue = 1 / scRef->energy() - 1 / trkP;
           }
         }
         if (scRef->seed().isNonnull() && scRef->seed()->energy() != 0 && trkP != 0) {
@@ -225,19 +238,24 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
         if (std::abs(scAtVtx.dEta()) < dEtaSeedInValue) {
           dEtaSeedInValue = std::abs(scAtVtx.dEta() - scRef->position().eta() + scRef->seed()->position().eta());
+          dEtaSeedInSignedValue = scAtVtx.dEta() - scRef->position().eta() + scRef->seed()->position().eta();
         }
 
         if (std::abs(scAtVtx.dPhi()) < dPhiInValue) {
           // we are allowing them to come from different tracks
           dPhiInValue = std::abs(scAtVtx.dPhi());
+          dPhiInSignedValue = scAtVtx.dPhi();
         }
       }
     }
 
     dEtaMap.insert(recoEcalCandRef, dEtaInValue);
     dEtaSeedMap.insert(recoEcalCandRef, dEtaSeedInValue);
+    dEtaSeedSignedMap.insert(recoEcalCandRef, dEtaSeedInSignedValue);
     dPhiMap.insert(recoEcalCandRef, dPhiInValue);
+    dPhiSignedMap.insert(recoEcalCandRef, dPhiInSignedValue);
     oneOverESuperMinusOneOverPMap.insert(recoEcalCandRef, oneOverESuperMinusOneOverPValue);
+    oneOverESuperMinusOneOverPSignedMap.insert(recoEcalCandRef, oneOverESuperMinusOneOverPSignedValue);
     oneOverESeedMinusOneOverPMap.insert(recoEcalCandRef, oneOverESeedMinusOneOverPValue);
     missingHitsMap.insert(recoEcalCandRef, missingHitsValue);
     validHitsMap.insert(recoEcalCandRef, validHitsValue);
@@ -247,8 +265,11 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::StreamID, edm::Event& iEvent, co
 
   iEvent.emplace(dEtaMapPutToken_, dEtaMap);
   iEvent.emplace(dEtaSeedMapPutToken_, dEtaSeedMap);
+  iEvent.emplace(dEtaSeedSignedMapPutToken_, dEtaSeedSignedMap);
   iEvent.emplace(dPhiMapPutToken_, dPhiMap);
+  iEvent.emplace(dPhiSignedMapPutToken_, dPhiSignedMap);
   iEvent.emplace(oneOverESuperMinusOneOverPMapPutToken_, oneOverESuperMinusOneOverPMap);
+  iEvent.emplace(oneOverESuperMinusOneOverPSignedMapPutToken_, oneOverESuperMinusOneOverPSignedMap);
   iEvent.emplace(oneOverESeedMinusOneOverPMapPutToken_, oneOverESeedMinusOneOverPMap);
   iEvent.emplace(missingHitsMapPutToken_, missingHitsMap);
   iEvent.emplace(validHitsMapPutToken_, validHitsMap);
