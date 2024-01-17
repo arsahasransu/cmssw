@@ -311,7 +311,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
         trkpMode.push_back(track.pMode());
         trketaMode.push_back(track.etaMode());
         trkphiMode.push_back(track.phiMode());
-	trkqoverpModeError.push_back(track.qoverpModeError());
+        trkqoverpModeError.push_back(track.qoverpModeError());
         auto const trackndof = track.ndof();
         trkchi2overndf.push_back(((trackndof == 0) ? -1 : (track.chi2() / trackndof)));
         trkcharge.push_back(track.charge());
@@ -340,11 +340,11 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  candidate.eta(),
                                  candidate.phi(),
                                  candidate.mass(),
-				 scRef->rawEnergy(),
-				 scRef->preshowerEnergy(),
-				 scRef->correctedEnergy(),
-				 scRef->correctedEnergyUncertainty(),
-				 0.0 /*candidate.fbrem()*/,
+                                 scRef->rawEnergy(),
+                                 scRef->preshowerEnergy(),
+                                 scRef->correctedEnergy(),
+                                 scRef->correctedEnergyUncertainty(),
+                                 0.0 /*candidate.fbrem()*/,
                                  trkd0,
                                  trkdz,
                                  trkpt,
@@ -353,7 +353,7 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
                                  trkpMode,
                                  trketaMode,
                                  trkphiMode,
-				 trkqoverpModeError,
+                                 trkqoverpModeError,
                                  trkchi2overndf,
                                  (*DetaMap)[candidateRef],
                                  (*DphiMap)[candidateRef],

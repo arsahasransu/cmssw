@@ -57,7 +57,6 @@ private:
   const int lowerTrackNrToRemoveCut_;
   const bool useDefaultValuesForBarrel_;
   const bool useDefaultValuesForEndcap_;
-  const bool produceSignedTrackVarColls_;
 
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dEtaMapPutToken_;
   const edm::EDPutTokenT<reco::RecoEcalCandidateIsolationMap> dEtaSeedMapPutToken_;
@@ -85,14 +84,15 @@ EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterS
       lowerTrackNrToRemoveCut_{config.getParameter<int>("lowerTrackNrToRemoveCut")},
       useDefaultValuesForBarrel_{config.getParameter<bool>("useDefaultValuesForBarrel")},
       useDefaultValuesForEndcap_{config.getParameter<bool>("useDefaultValuesForEndcap")},
-      produceSignedTrackVarColls_{config.getParameter<bool>("produceSignedTrackVarColls")},
       dEtaMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Deta").setBranchAlias("deta")},
       dEtaSeedMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("DetaSeed").setBranchAlias("detaseed")},
-      dEtaSeedSignedMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("DetaSeedSigned").setBranchAlias("detaseedsigned")},
+      dEtaSeedSignedMapPutToken_{
+          produces<reco::RecoEcalCandidateIsolationMap>("DetaSeedSigned").setBranchAlias("detaseedsigned")},
       dPhiMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("Dphi").setBranchAlias("dphi")},
       dPhiSignedMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("DphiSigned").setBranchAlias("dphisigned")},
       oneOverESuperMinusOneOverPMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("OneOESuperMinusOneOP")},
-      oneOverESuperMinusOneOverPSignedMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("OneOESuperMinusOneOPSigned")},
+      oneOverESuperMinusOneOverPSignedMapPutToken_{
+          produces<reco::RecoEcalCandidateIsolationMap>("OneOESuperMinusOneOPSigned")},
       oneOverESeedMinusOneOverPMapPutToken_{produces<reco::RecoEcalCandidateIsolationMap>("OneOESeedMinusOneOP")},
       missingHitsMapPutToken_{
           produces<reco::RecoEcalCandidateIsolationMap>("MissingHits").setBranchAlias("missinghits")},
@@ -109,7 +109,6 @@ void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptio
   desc.add<int>(("lowerTrackNrToRemoveCut"), -1);
   desc.add<bool>(("useDefaultValuesForBarrel"), false);
   desc.add<bool>(("useDefaultValuesForEndcap"), false);
-  desc.add<bool>(("produceSignedTrackVarColls"), false);
 
   descriptions.add("hltEgammaHLTGsfTrackVarProducer", desc);
 }
