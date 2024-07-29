@@ -167,7 +167,9 @@ L1PFCandVars = cms.PSet(
     z0 = Var("z0", float, doc="longitudnal impact parameter"),
     puppiWeight = Var("puppiWeight", float, doc="Puppi weight, -1 if unavailable"),
     pdgId = Var("pdgId", int, doc="PDG id"),
-    trackPt = Var("pfCluster().pt()", float, doc="pt of the associated track"),
+    clusPt = Var("?pfCluster.isNull()?-9999.0:pfCluster().pt()", float, doc="pt of the associated cluster"),
+    clusEta = Var("?pfCluster.isNull()?-9999.0:pfCluster().eta()", float, doc="eta of the associated cluster"),
+    clusPhi = Var("?pfCluster.isNull()?-9999.0:pfCluster().phi()", float, doc="phi of the associated cluster"),
 )
 
 p2l1egisoL1PFTable = cms.EDProducer("SimpleL1TPFCandidateFlatTableProducer",
