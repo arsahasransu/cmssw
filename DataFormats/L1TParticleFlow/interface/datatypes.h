@@ -237,6 +237,26 @@ namespace l1ct {
     return deta * deta + dphi * dphi;
   }
 
+  inline int glbdr2_int(glbeta_t eta1, glbphi_t phi1, glbeta_t eta2, glbphi_t phi2) {
+    ap_int<glbeta_t::width + 1> deta = (eta1 - eta2);
+
+    ap_uint<glbphi_t::width> pi_repr = (ap_uint<glbphi_t::width>)(M_PI / Scales::ETAPHI_LSB);
+    ap_uint<glbphi_t::width> twopi_repr = (ap_uint<glbphi_t::width>)(2 * M_PI / Scales::ETAPHI_LSB);
+    // std::cout<<pi_repr<<"\t"<<twopi_repr<<"\t";
+
+    ap_int<glbphi_t::width + 1> dphi = (phi1 - phi2);
+    // std::cout<<dphi<<"\t";
+    ap_uint<glbphi_t::width> abs_dphi = (dphi >= 0) ? ap_uint<glbphi_t::width>(dphi) : 
+                                                      ap_uint<glbphi_t::width>(-dphi);
+    ap_uint<glbphi_t::width> twopi_minus_absdphi =  (twopi_repr - abs_dphi);
+    // std::cout<<abs_dphi<<"\t"<<twopi_minus_absdphi<<"\t";
+    ap_uint<glbphi_t::width> resolved_dphi = (abs_dphi < pi_repr) ? ap_uint<glbphi_t::width>(abs_dphi) : 
+                                                                    ap_uint<glbphi_t::width>(twopi_minus_absdphi);
+    // std::cout<<resolved_dphi<<std::endl;
+
+    return deta * deta + resolved_dphi * resolved_dphi;
+  }
+
 }  // namespace l1ct
 
 #endif

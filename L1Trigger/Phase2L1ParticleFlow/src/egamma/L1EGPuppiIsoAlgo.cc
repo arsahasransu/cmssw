@@ -97,6 +97,8 @@ void L1EGPuppiIsoAlgo::run(EGIsoEleObjsEmu& l1Eles, const PuppiObjs& l1PFCands) 
 
 iso_t L1EGPuppiIsoAlgo::calcIso(const EGIsoObj& l1EG, std::list<const PuppiObj*>& workPFCands, z0_t z0) const {
   iso_t sumPt = 0;
+//   std::cout<<"Calculate Iso ------------"<<std::endl;
+//   std::cout<<l1EG.floatPt()<<std::endl;
 
   auto pfIt = workPFCands.cbegin();
   while (pfIt != workPFCands.cend()) {
@@ -113,9 +115,12 @@ iso_t L1EGPuppiIsoAlgo::calcIso(const EGIsoObj& l1EG, std::list<const PuppiObj*>
       dz = -dz;
     }
 
+        // std::cout<<workPFCand->floatPt()<<"\t"<<workPFCand->floatEta()<<"\t"<<workPFCand->floatPhi()<<"\t"<<pfCandZ0<<"\t"<<config_.dZMax_<<std::endl;
     if (workPFCand->intCharge() == 0 || (workPFCand->intCharge() != 0 && dz < config_.dZMax_)) {
-      const auto dR2 = dr2_int(l1EG.hwEta, l1EG.hwPhi, workPFCand->hwEta, workPFCand->hwPhi);
+      const auto dR2 = glbdr2_int(l1EG.hwEta, l1EG.hwPhi, workPFCand->hwEta, workPFCand->hwPhi);
+        // std::cout<<workPFCand->floatPt()<<"\t"<<workPFCand->floatEta()<<"\t"<<workPFCand->floatPhi()<<"\t"<<dR2<<std::endl;
       if (dR2 >= config_.dRMin2_ && dR2 < config_.dRMax2_ && workPFCand->hwPt >= config_.ptMin_) {
+        // std::cout<<workPFCand->floatPt()<<"\t"<<workPFCand->floatEta()<<"\t"<<workPFCand->floatPhi()<<std::endl;
         sumPt += workPFCand->hwPt;
         // remove the candidate from the collection if the module is configured to not reuse them
         if (!config_.pfCandReuse_) {

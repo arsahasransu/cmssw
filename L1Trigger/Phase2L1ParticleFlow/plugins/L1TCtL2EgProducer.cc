@@ -355,6 +355,27 @@ void L1TCtL2EgProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Ev
   l2EgPuppiIsoAlgo_.run(out_photons_emu, puppiObjs);
   l2ElePuppiIsoAlgo_.run(out_eles_emu, puppiObjs);
 
+//   std::cout<<"Ele Objs: "<<std::endl;
+//   for(auto& out_ele_emu : out_eles_emu) {
+//         l1ct::EGIsoEleObjEmu::IsoType isotype_ = l1ct::EGIsoEleObjEmu::IsoType::PuppiIso;
+//         if(out_ele_emu.floatPt() > 0) {
+//         // if(out_ele_emu.floatIso(isotype_) != 0) {
+//             std::cout<<out_ele_emu.floatEta()<<"\t"<<
+//                        out_ele_emu.floatPhi()<<"\t"<<
+//                        out_ele_emu.floatPt()<<"\t"<<
+//                        out_ele_emu.floatIso(isotype_)<<"\t"<<
+//                        out_ele_emu.floatRelIso(isotype_)<<"\t"<<
+//                        out_ele_emu.floatIso(isotype_)/out_ele_emu.floatPt()<<std::endl;
+//         }
+//   }
+
+//   std::cout<<"Puppi Objs: "<<std::endl;
+//   for(auto& puppiObj: puppiObjs) {
+//     std::cout<<puppiObj.floatEta()<<"\t"<<
+//                puppiObj.floatPhi()<<"\t"<<
+//                puppiObj.floatPt()<<std::endl;
+//   }
+
   if (doOutPtrn_) {
     l1t::demo::EventData outData;
     outData.add({"eglayer2", 0}, l2encoder.encodeLayer2EgObjs(out_photons_emu, out_eles_emu));
@@ -387,6 +408,9 @@ void L1TCtL2EgProducer::convertToEmu(const l1t::TkElectron &tkele,
   // NOTE: The emulator and FW data-format stores absolute iso while the CMSSW object stores relative iso
   emu.setHwIso(EGIsoEleObjEmu::IsoType::TkIso, l1ct::Scales::makeIso(tkele.trkIsol() * tkele.pt()));
   emu.setHwIso(EGIsoEleObjEmu::IsoType::PfIso, l1ct::Scales::makeIso(tkele.pfIsol() * tkele.pt()));
+//   if( tkele.puppiIsol() != 0 ){
+//     std::cout<<tkele.puppiIsol()<<"\t"<<tkele.pt()<<std::endl;
+//   }
   emu.setHwIso(EGIsoEleObjEmu::IsoType::PuppiIso, l1ct::Scales::makeIso(tkele.puppiIsol() * tkele.pt()));
   // std::cout << "[convertToEmu] TkEle pt: " << emu.hwPt << " eta: " << emu.hwEta << " phi: " << emu.hwPhi << " staidx: " << emu.src_idx << std::endl;
   boarOut.egelectron.push_back(emu);
@@ -453,6 +477,13 @@ l1t::TkElectron L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoEleObjEmu &eg
   tkele.setHwQual(gteg.qualityFlags);
   tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
   tkele.setPuppiIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso));
+//   std::cout<<"#############################"<<std::endl;
+//   std::cout<<l1gt::Scales::floatPt(gteg.v3.pt)<<"\t"<<l1gt::Scales::floatEta(gteg.v3.eta)<<"\t"<<l1gt::Scales::floatPhi(gteg.v3.phi)<<std::endl;
+//   std::cout<<egele.floatPt()<<"\t"<<egele.floatEta()<<"\t"<<egele.floatPhi()<<std::endl;
+//   std::cout<<(tkele.egCaloPtr().get())->eta()<<std::endl;
+//   std::cout<<"#############################"<<std::endl;
+//   if( egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso) != 0 )
+//     std::cout<<egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso)<<std::endl;
   tkele.setEgBinaryWord(gteg.pack(), l1t::TkElectron::HWEncoding::GT);
   tkele.setIdScore(egele.floatIDScore());
   tkele.setCharge(egele.intCharge());
