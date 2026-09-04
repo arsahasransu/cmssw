@@ -14,6 +14,7 @@
 
 #include "DataFormats/L1TrackTrigger/interface/TTTypes.h"
 #include "DataFormats/L1TParticleFlow/interface/gt_datatypes.h"
+#include "DataFormats/L1TParticleFlow/interface/egamma.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <ap_int.h>
@@ -51,6 +52,11 @@ namespace l1t {
     void setPuppiIsolPV(float puppiIsolPV) { puppiIsolPV_ = puppiIsolPV; }
     void setEgCaloPtr(const edm::Ptr<L1Candidate>& egPtr) { egCaloPtr_ = egPtr; }
 
+    void setHwCalo(const l1ct::EGIsoObj& eg) {
+      hwCaloEta_ = eg.intEta();
+      hwCaloPhi_ = eg.intPhi();
+    }
+
     template <int N>
     void setEgBinaryWord(ap_uint<N> word, HWEncoding encoding) {
       egBinaryWord0_ = word;
@@ -65,6 +71,44 @@ namespace l1t {
       }
       return l1gt::Photon::unpack_ap(egBinaryWord<l1gt::Photon::BITWIDTH>());
     }
+
+    // Override the legacy L1Candidate int accessors: in the Phase2 flow those int
+    // members are never filled (they always read out 0). Instead, decode the hardware
+    // (integer fixed-point) kinematics from the packed EG binary word, which is set by
+    // the Layer1/Layer2 producers. Returns 0 if the word has not been set (None).
+    int hwPt() const {
+      if (encoding() == HWEncoding::CT) {
+        return l1ct::EGIsoObj::unpack(egBinaryWord<l1ct::EGIsoObj::BITWIDTH>()).intPt();
+      }
+      if (encoding() == HWEncoding::GT) {
+        const l1gt::pt_t pt = hwObj().v3.pt;
+        return ap_uint<l1gt::pt_t::width>(pt.range()).to_int();
+      }
+      return 0;
+    }
+    int hwEta() const {  // eta at the calo face (CT: global beta) / (GT: global eta)
+      if (encoding() == HWEncoding::CT) {
+        return l1ct::EGIsoObj::unpack(egBinaryWord<l1ct::EGIsoObj::BITWIDTH>()).intEta();
+      }
+      if (encoding() == HWEncoding::GT) {
+        return hwObj().v3.eta.to_int();
+      }
+      return 0;
+    }
+    int hwPhi() const {  // phi at the calo face (CT: global phi) / (GT: global phi)
+      if (encoding() == HWEncoding::CT) {
+        return l1ct::EGIsoObj::unpack(egBinaryWord<l1ct::EGIsoObj::BITWIDTH>()).intPhi();
+      }
+      if (encoding() == HWEncoding::GT) {
+        return hwObj().v3.phi.to_int();
+      }
+      return 0;
+    }
+
+    // Digitized eta/phi of the matched EM cluster at the calo face (global coords,
+    // LSB = pi/720). Set from the l1ct::EGIsoObj at object creation (photons & electrons).
+    int hwCaloEta() const { return hwCaloEta_; }
+    int hwCaloPhi() const { return hwCaloPhi_; }
 
     template <int N>
     ap_uint<N> egBinaryWord() const {
@@ -85,6 +129,8 @@ namespace l1t {
     uint32_t egBinaryWord1_;
     uint32_t egBinaryWord2_;
     HWEncoding encoding_;
+    int hwCaloEta_{0};
+    int hwCaloPhi_{0};
   };
 }  // namespace l1t
 

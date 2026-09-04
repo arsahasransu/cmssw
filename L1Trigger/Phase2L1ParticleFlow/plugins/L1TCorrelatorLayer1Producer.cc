@@ -4,6 +4,9 @@
 #include <fstream>
 #include <cstdio>
 
+#include <cstdint>
+#include <bitset>
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/stream/EDProducer.h"
@@ -1346,6 +1349,23 @@ std::unique_ptr<l1t::PFCandidateCollection> L1TCorrelatorLayer1Producer::fetchPF
   return ret;
 }
 
+
+// Converts a double in [0, 1] to 1-bit integer + 8-bit fractional (9 bits total, unsigned)
+int32_t _toFixedPoint_1_8(double value) {
+    const int fracBits = 8;
+    const int totalBits = 9;
+    const int maxVal = (1 << totalBits) - 1; // 511
+
+    // Scale and round to nearest integer
+    int scaled = static_cast<int>(std::round(value * (1 << fracBits)));
+
+    // Clamp to valid range [0, 511]
+    scaled = std::max(0, std::min(scaled, maxVal));
+
+    return static_cast<int32_t>(scaled);
+}
+
+
 void L1TCorrelatorLayer1Producer::putPuppi(edm::Event &iEvent) const {
   auto refprod = iEvent.getRefBeforePut<l1t::PFCandidateCollection>("Puppi");
   auto coll = std::make_unique<l1t::PFCandidateCollection>();
@@ -1381,7 +1401,8 @@ void L1TCorrelatorLayer1Producer::putPuppi(edm::Event &iEvent) const {
         coll->back().setHwDxy(p.hwDxy());
         coll->back().setHwTkQuality(p.hwTkQuality());
       } else {
-        coll->back().setHwPuppiWeight(p.hwPuppiW());
+        // std::cout<<p.hwPuppiW()<<"\t"<<_toFixedPoint_1_8(p.floatPuppiW())<<std::endl;
+        coll->back().setHwPuppiWeight(_toFixedPoint_1_8(p.floatPuppiW()));
         coll->back().setHwEmID(p.hwEmID());
       }
       coll->back().setEncodedPuppi64(p.pack().to_uint64());
@@ -1447,6 +1468,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
                      egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIso),
                      egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIsoPV));
       tkem.setHwQual(egiso.hwQual);
+      tkem.setHwCalo(egiso);
       tkem.setPFIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIso));
       tkem.setPFIsolPV(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIsoPV));
       tkem.setEgBinaryWord(egiso.pack(), l1t::TkEm::HWEncoding::CT);
@@ -1467,6 +1489,7 @@ void L1TCorrelatorLayer1Producer::putEgObjects(edm::Event &iEvent,
                             edm::refToPtr(egele.srcTrack->track()),
                             egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
       tkele.setHwQual(egele.hwQual);
+      tkele.setHwCalo(egele);
       tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
       tkele.setEgBinaryWord(egele.pack(), l1t::TkElectron::HWEncoding::CT);
       tkele.setIdScore(egele.floatIDScore());

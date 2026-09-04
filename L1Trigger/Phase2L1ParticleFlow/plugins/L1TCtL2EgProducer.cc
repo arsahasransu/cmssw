@@ -431,6 +431,7 @@ l1t::TkEm L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoObjEmu &egiso,
                  egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIso),
                  egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::TkIsoPV));
   tkem.setHwQual(gteg.qualityFlags);
+  tkem.setHwCalo(egiso);
   tkem.setPFIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIso));
   tkem.setPFIsolPV(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PfIsoPV));
   tkem.setPuppiIsol(egiso.floatRelIso(l1ct::EGIsoObjEmu::IsoType::PuppiIso));
@@ -451,6 +452,7 @@ l1t::TkElectron L1TCtL2EgProducer::convertFromEmu(const l1ct::EGIsoEleObjEmu &eg
                         constituentsPtrs[egele.src_idx].second,
                         egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::TkIso));
   tkele.setHwQual(gteg.qualityFlags);
+  tkele.setHwCalo(egele);
   tkele.setPFIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PfIso));
   tkele.setPuppiIsol(egele.floatRelIso(l1ct::EGIsoEleObjEmu::IsoType::PuppiIso));
   tkele.setEgBinaryWord(gteg.pack(), l1t::TkElectron::HWEncoding::GT);
